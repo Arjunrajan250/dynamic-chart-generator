@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Chart Generator</title>
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/radar.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Responsive.js"></script>
+    <link rel="stylesheet" href="./styles.css">
+
+</head>
+
+<body>
+    <div class="bg-image"></div>
+    <h1 class="text-center mainheadclr bg-primary rounded">DYNAMIC CHART GENERATOR</h1>
+    <div class="d-flex grid">
+        <div class="col-6">
+            <div class="w-50 border rounded p-5">
+                <form id="dynamicForm">
+                    <div class="chart-buttons mb-3 ">
+                        <button type="button" class="btn bg-info" onclick="generateChart('Bar')">Bar
+                            Chart</button>
+                        <button type="button" class="btn btn-secondary" onclick="generateChart('Pie')">Pie
+                            Chart</button>
+                        <button type="button" class="btn bg-info" onclick="generateChart('Line')">Line
+                            Chart</button>
+                        <button type="button" class="btn btn-secondary" onclick="generateChart('Radar')">Radar
+                            Chart</button>
+                        <button type="button" class="btn bg-primary" onclick="generateChart('table')">show
+                            table</button>
+                    </div>
+
+                    <div id="inputContainer" style="display: none;">
+                        <div class="mb-3 input-field row">
+                            <div class="col-6">
+                                <label for="label1" class="form-label text-dark">Label 1:</label>
+                                <input type="text" id="label1" name="label1" class="form-control placeholderclr" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="value1" class="form-label text-dark">Value 1:</label>
+                                <input type="number" id="value1" name="value1" class="form-control placeholderclr" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 input-field row">
+                            <div class="col-6">
+                                <label for="label2" class="form-label text-dark">Label 2:</label>
+                                <input type="text" id="label2" name="label2" class="form-control placeholderclr" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="value2" class="form-label text-dark">Value 2:</label>
+                                <input type="number" id="value2" name="value2" class="form-control placeholderclr" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 input-field row">
+                            <div class="col-6">
+                                <label for="label3" class="form-label text-dark">Label 3:</label>
+                                <input type="text" id="label3" name="label3" class="form-control placeholderclr" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="value3" class="form-label text-dark">Value 3:</label>
+                                <input type="number" id="value3" name="value3" class="form-control placeholderclr" required>
+                            </div>
+                        </div>
+                        <div class="mb-3 input-field row">
+                            <div class="col-6">
+                                <label for="label4" class="form-label text-dark">Label 4:</label>
+                                <input type="text" id="label4" name="label4" class="form-control placeholderclr" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="value4" class="form-label text-dark">Value 4:</label>
+                                <input type="number" id="value4" name="value4" class="form-control placeholderclr" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="addButton" class="btn btn-secondary">Add More Values</button>
+                    <button type="button" class="btn btn-warning renderclr" id="renderer">Render Chart</button>
+                    <br><br>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <table id="dataTable" class="table table-striped border-warning  rounded">
+                <thead id="tableHead">
+                    <!-- <tr>
+                        <th class="rounded bg-warning">Label</th>
+                        <th class="rounded bg-warning">Value</th>
+                    </tr> -->
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+
+
+    </div>
+    <div id="chart" class="grid row"></div>
+    <script>
+        const showInputField = (type) => {
+
+
+        }
+        document.getElementById('addButton').addEventListener('click', function () {
+    const inputContainer = document.getElementById('inputContainer');
+    const currentInputCount = inputContainer.querySelectorAll('.input-field').length + 1; // Count existing input fields
+
+    const newDiv = document.createElement('div');
+    newDiv.className = 'mb-3 input-field row'; // Use Bootstrap's grid layout
+
+    // Create the new label and value inputs with unique IDs
+    newDiv.innerHTML = `
+        <div class="col-6">
+            <label for="label${currentInputCount}" class="form-label text-dark">Label ${currentInputCount}:</label>
+            <input type="text" id="label${currentInputCount}" name="label${currentInputCount}" class="form-control placeholderclr" required>
+        </div>
+        <div class="col-6">
+            <label for="value${currentInputCount}" class="form-label text-dark">Value ${currentInputCount}:</label>
+            <input type="number" id="value${currentInputCount}" name="value${currentInputCount}" class="form-control placeholderclr" required>
+        </div>
+    `;
+
+    inputContainer.appendChild(newDiv); // Append the newly created fields
+});
+
+
+
+        const showTable = (data) => {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = ''; // Clear previous rows before adding new data
+
+            // Create table head only if it doesn't exist
+            const tableHead = document.getElementById('tableHead');
+            if (tableHead.children.length === 0) {
+                const tr = document.createElement("tr");
+
+                const labelHeader = document.createElement("th");
+                labelHeader.className = "rounded tableclr align-middle";
+                labelHeader.textContent = "Label";
+                tr.appendChild(labelHeader);
+
+                const valueHeader = document.createElement("th");
+                valueHeader.className = "rounded tableclr ";
+                valueHeader.innerHTML = `
+        <div class="d-flex justify-content-between">Value
+            <input type="text" id="searchInput" placeholder="Search..." class="form-control " />
+            <img src="sort.png" alt="Sort" class="imageSize" id="sortButton" style="cursor: pointer;">
+        </div>`;
+                tr.appendChild(valueHeader);
+
+                tableHead.appendChild(tr); // Append header to the table head
+            }
+
+            // Populate table body with new data
+            data.forEach((el, i) => {
+                const value = parseFloat(el.value) || 0; // Retrieve the numeric value
+                const label = `Value ${i + 1}`; // Create a label for the current value
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${label}</td><td>${value}</td>`;
+                tableBody.appendChild(row); // Add the new row to the table body
+            });
+
+            attachSort(); // Attach sorting functionality
+            search(); // Attach searching functionality
+
+            // Display the table
+            document.getElementById('dataTable').style.display = 'table'; // Show the table
+        };
+
+        const attachSort = () => {
+            const headers = document.querySelectorAll('#tableHead th');
+
+            headers.forEach((header, index) => {
+                console.log("Entered loop")
+                header.addEventListener('click', () => {
+                    console.log("Entered event listener")
+                    const rows = Array.from(document.querySelectorAll('#tableBody tr'));
+                    const isAscending = header.classList.contains('asc');
+
+                    header.classList.toggle('asc', !isAscending);
+                    header.classList.toggle('desc', isAscending);
+
+                    rows.sort((a, b) => {
+                        const aValue = (index === 0) ? a.cells[index].textContent : parseFloat(a.cells[index].textContent);
+                        const bValue = (index === 0) ? b.cells[index].textContent : parseFloat(b.cells[index].textContent);
+                        return isAscending ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1);
+                    });
+
+                    rows.forEach(row => document.getElementById('tableBody').appendChild(row));
+                });
+            });
+        }
+
+
+        const search = () => {
+            document.getElementById('searchInput').addEventListener('keyup', function () {
+                const filter = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#tableBody tr');
+
+                rows.forEach(row => {
+                    const cells = row.getElementsByTagName("td");
+                    let match = false;
+
+                    for (let i = 0; i < cells.length; i++) {
+                        if (cells[i].textContent.toLowerCase().includes(filter)) {
+                            match = true;
+                            break;
+                        }
+                    }
+
+                    row.style.display = match ? "" : "none";
+                });
+            });
+        }
+
+
+
+
+
+        const generateChart = (type) => {
+            const inputFields = document.querySelectorAll('#inputContainer input[type="number"],#inputContainer input[type="text"]');
+            inputFields.forEach((el) => {
+                el.value = "";
+            });
+            document.getElementById('inputContainer').style.display = "block";
+
+            const chart = document.getElementById("chart");
+
+            // Remove existing chart of the same type if present
+            const existingChart = document.getElementById(`${type.toLowerCase()}Chart`);
+            if (existingChart) {
+                chart.removeChild(existingChart); // Remove existing chart of that type
+            }
+
+            if (type != "table") {
+                const child = document.createElement("div");
+                child.style.height = "500px";
+                child.className = "col-3";
+                child.setAttribute("id", `${type.toLowerCase()}Chart`); // Set the ID based on the chart type
+                chart.appendChild(child); // Append the new chart container
+            }
+            // Define the render function outside of the listener to maintain proper reference.
+            const renderChart = () => {
+                const values = [];
+
+                inputFields.forEach((el, i) => {
+                    console.log(typeof(el.value))
+                    if(i%2==0){
+                        values.push({
+                            value: parseFloat(inputFields[i+1].value || 0), // Ensure numeric value
+                            label: el.value
+                        });
+                    }
+                });
+
+                switch (type) {
+                    case "Bar":
+                        generateBar(values);
+                        break;
+                    case "Line":
+                        generateLine(values);
+                        break;
+                    case "Pie":
+                        generatePie(values);
+                        break;
+                    case "Radar":
+                        generateRadar(values);
+                        break;
+                    case "table":
+                        showTable(values);
+                        break;
+                    default:
+                        console.log("Unsupported chart type");
+                }
+            };
+
+            const removeListener = () => {
+                console.log("Removed Listener")
+            }
+
+            // Remove existing listener if any
+            const rendererElement = document.getElementById('renderer');
+            rendererElement.removeEventListener("click", renderChart);
+
+            // Add the new listener
+            rendererElement.addEventListener("click", renderChart);
+        };
+
+    </script>
+    <!-- <script>
+    let selectedChartType;
+    
+    // Function to select chart type
+    function selectChartType(chartType) {
+        selectedChartType = chartType;
+        document.getElementById('chartDiv').style.display = 'none'; // Hide chart on type change
+        // Function to generate chart
+        function generateChart() {
+            const inputFields = document.querySelectorAll('[id^="value"]');
+            const values = [];
+            const labels = [];
+            
+            inputFields.forEach((field, index) => {
+                const value = parseFloat(field.value);
+                values.push(value);
+                labels.push(`Value ${index + 1}`);
+            });
+            
+            document.getElementById('chartDiv').style.display = 'block'; // Show chart div
+            
+            updateTable(labels,values)
+            switch (selectedChartType) {
+                case 'Bar':
+                    generateBarChart(values, labels);
+                    break;
+                case 'Pie':
+                    generatePieChart(values, labels);
+                    break;
+                case 'Line':
+                    generateLineChart(values);
+                    break;
+                case 'Radar':
+                    generateRadarChart(values, labels);
+                    break;
+                default:
+                    alert('Please select a chart type!');
+            }
+        }
+        generateChart()
+    }
+
+    // Function to add more input fields
+    
+    // Function to update data table
+    function updateTable(labels, values) {
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        labels.forEach((label, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${label}</td><td>${values[index]}</td>`;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Function to generate Bar Chart
+    function generateBarChart(values, labels) {
+        const root = am5.Root.new("chartDiv");
+        const chart = root.container.children.push(am5xy.XYChart.new(root, {}));
+        const xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+            categoryField: "label"
+        }));
+        const yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {}));
+        const series = chart.series.push(am5xy.ColumnSeries.new(root, {
+            name: "Series",
+            xAxis: xAxis,
+            yAxis: yAxis,
+            valueYField: "value",
+            categoryXField: "label"
+        }));
+
+        const chartData = values.map((value, index) => ({
+            label: labels[index],
+            value: value
+        }));
+
+        xAxis.data.setAll(chartData);
+        series.data.setAll(chartData);
+        series.appear(1000);
+        chart.appear(1000, 100);
+    }
+
+    // Function to generate Pie Chart
+    function generatePieChart(values, labels) {
+        const root = am5.Root.new("chartDiv");
+        const chart = root.container.children.push(am5percent.PieChart.new(root, {}));
+        const series = chart.series.push(am5percent.PieSeries.new(root, {
+            valueField: "value",
+            categoryField: "label"
+        }));
+
+        const pieData = values.map((value, index) => ({
+            label: labels[index],
+            value: value
+        }));
+
+        series.data.setAll(pieData);
+        series.appear(1000, 100);
+    }
+
+    // Function to generate Line Chart
+    function generateLineChart(values) {
+        const root = am5.Root.new("chartDiv");
+        const chart = root.container.children.push(am5xy.XYChart.new(root, {}));
+        const xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+            baseInterval: {
+                timeUnit: "day",
+                count: 1
+            }
+        }));
+        const yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {}));
+        const series = chart.series.push(am5xy.LineSeries.new(root, {
+            xAxis: xAxis,
+            yAxis: yAxis,
+            valueYField: "value",
+            valueXField: "date"
+        }));
+
+        const date = new Date();
+        const lineData = values.map((value, index) => ({
+            date: new Date(date.setDate(date.getDate() + index)),
+            value: value
+        }));
+
+        xAxis.data.setAll(lineData);
+        series.data.setAll(lineData);
+        series.appear(1000);
+        chart.appear(1000, 100);
+    }
+
+    // Function to generate Radar Chart
+    function generateRadarChart(values, labels) {
+        const root = am5.Root.new("chartDiv");
+        const chart = root.container.children.push(am5radar.RadarChart.new(root, {}));
+
+        const xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+            categoryField: "label"
+        }));
+        const yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {}));
+        const series = chart.series.push(am5radar.RadarLineSeries.new(root, {
+            name: "Series",
+            xAxis: xAxis,
+            yAxis: yAxis,
+            valueYField: "value",
+            categoryXField: "label"
+        }));
+
+        const radarData = values.map((value, index) => ({
+            label: labels[index],
+            value: value
+        }));
+
+        xAxis.data.setAll(radarData);
+        series.data.setAll(radarData);
+        series.appear(1000);
+        chart.appear(1000, 100);
+    }
+    
+</script> -->
+    <script src="./barChart.js"></script>
+    <script src="./lineChart.js"></script>
+    <script src="./pieChart.js"></script>
+
+    <script src="./radarChart.js"></script>
+
+</body>
+
+</html>

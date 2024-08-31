@@ -1,0 +1,54 @@
+
+.heading{
+    color: aliceblue;
+    align-items: center;
+}
+.chartBtn{
+    width: 250px;
+    height: 50px;
+}
+
+.tabledatadiv{
+    width: 100px !important;
+}
+.imageSize{
+  width: 35px;
+  height: 25px;
+  color: aliceblue;
+}
+
+#searchInput {
+  width: 300px;
+}
+.renderclr{
+  background-color: #6666ff;
+}
+.tableclr{
+  background-color: #4d94ff !important;
+}
+.mainheadclr{
+  color:  #80e2ff ;
+  position: relative; /* Ensure content is above the background */
+            z-index: 1; /* Bring content to front */
+            color: white; /* Text color for visibility */
+            text-align: center;
+            
+}
+.placeholderclr{
+  background-color: #9ad7ff !important;
+}
+.bg-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+            bottom: 0;
+            background-image: url(arj2.jpg);
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px);
+            z-index: -1; 
+}
+body{
+  margin: 0;
+}
